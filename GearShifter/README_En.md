@@ -51,7 +51,7 @@ Pattern["Gear_1,1",array] = array("R")
 ### 1. Draw pattern what you want to make.
 If you don't want to make any problems, I highly recommend to draw shifter pattern on grid or paper, etc.  
 In this example, I will use this pattern for explain.  
-![Example Pattern](/image/PatternEx01.png "Example pattern for explain.")
+![Example Pattern](/image/test.png)
 ### 2. Check your pattern before starting.
 If you draw your pattern, then check it.  
 The pattern must not have any empty space, invalid route, and overlap section.  
