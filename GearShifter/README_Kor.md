@@ -75,7 +75,7 @@ ForceDirection을 올바르게 사용하기 위해서는 그것의 중심점을 
 Gear["{기어 종류}",array] = array({기어}) **#기어 종류는 반드시 C, D, R 중에서 하나가 되어야 합니다. / D단이나 R단과 달리 C단은 사용하지 않을 시 작성하지 않아도 됩니다.**  
 Pattern["Row{번호}",array] = array(Y좌표, X최솟값, X최댓값, ForceDirection 중심점) **ForceDirection을 사용하지 않을 시 {ForceDirection 중심점}를 비워두세요.**  
 Pattern["Col{번호}",array] = array(X좌표, Y최솟값, Y최댓값, ForceDirection 중심점) **ForceDirection을 사용하지 않을 시 {ForceDirection 중심점}를 비워두세요.**  
-Pattern["Gear_{좌표}",array] = array({기어 이름}) **기어 이름의 갯수는 1개에서 4개 사이어야 합니다. / 기어 갯수가 2개 이상일 시 ShifterToggle1을, 3개 이상일 시 ShifterToggle2를 사용해야 합니다.**  
+Pattern["Gear_{좌표}",array] = array({기어 이름}) **{기어 이름}의 갯수는 1개에서 4개 사이어야 합니다. / 기어 갯수가 2개 이상일 시 ShifterToggle1을, 3개 이상일 시 ShifterToggle2를 사용해야 합니다.**  
 
 예시)  
 Gear["D",array] = array(1,2,3,4,5)  
