@@ -103,8 +103,8 @@ Pattern["Gear_1,3",array] = array("D1")
 
 ## 에러들
 이 E2에는 5개의 다른 에러가 있습니다. 에러가 발생할 경우 다음 설명을 참고해주세요.  
-1. NullPointException : 값이 없음  
-2. SuchElementException : 지정 ID를 찾을 수 없음  
-3. ArgumentMismatchException : 함수에 인수가 부족함  
-4. IOException : 입력 혹은 출력값이 적합하지 않음  
-5. OutOfRangeException : 값이 지정된 범위를 벗어남  
+1. NullPointException : 값이 없음
+2. SuchElementException : 지정 ID를 찾을 수 없음
+3. ArgumentMismatchException : 함수에 인수가 부족함
+4. IOException : 입력 혹은 출력값이 적합하지 않음
+5. OutOfRangeException : 값이 지정된 범위를 벗어남
