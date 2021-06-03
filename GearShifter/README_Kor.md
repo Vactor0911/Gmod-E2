@@ -1,6 +1,6 @@
 # Gear Shifter
 EGP Hud와 커스텀 설정이 있는 수정 가능한 기어 변속기입니다.  
-예제 패턴은 "ShifterPattern.txt"를 참고해주세요.
+예제 패턴은 "ShifterPattern"를 참고해주세요.
 
 ## Settings
 KeyLeft #KeyLeft                                      **#왼쪽**  
