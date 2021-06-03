@@ -1,0 +1,692 @@
+@name Vactor0911's Gear Shifter Chip
+@inputs Chair:entity Egp:wirelink Rpm
+@outputs GearStr:string GearInt ShifterToggle1 ShifterToggle2 Clutch
+@persist [Pattern,Gear]:table [KeyLeft,KeyRight,KeyUp,KeyDown,KeyShifterToggle1,KeyShifterToggle2,KeyClutch]:string Delay InputPriority:string Powerband:vector2
+@persist Offset:vector2 Scale Thickness Color:vector KnobSize KnobColor:vector KnobTextSize KnobTextColor:vector [ShifterToggle1Color,ShifterToggle2Color]:array
+@persist Driver:entity Position:table Rows Cols Gears GearAry:array GearPos:vector2 ShiftFlag ForceFlag AutoShiftFlag
+@trigger none
+
+if(dupefinished()){reset()}
+
+###Settings###
+KeyLeft = "Pad_4"
+KeyRight = "Pad_6"
+KeyUp = "Pad_8"
+KeyDown = "Pad_5"
+KeyShifterToggle1 = ""
+KeyShifterToggle2 = ""
+KeyClutch = "LShift"
+Delay = 0.2
+InputPriority = "Col"
+
+#Engine
+Powerband = vec2(800,3000)
+
+#Egp
+Offset = vec2(0,0)
+Scale = 30
+Thickness = 1
+Color = vec(150)
+KnobSize = 50
+KnobColor = vec(200)
+KnobTextSize = 1
+KnobTextColor = vec(0)
+ShifterToggle1Color = array(vec(55,0,0),vec(255,0,0))
+ShifterToggle2Color = array(vec(0,0,55),vec(0,0,255))
+
+#Gears
+Gear["D",array] = array(1,2,3,4,5)
+Gear["R",array] = array(-1)
+
+Pattern["Row1",array] = array(0,-1,1,0)
+
+Pattern["Col1",array] = array(-1,-1,1)
+Pattern["Col2",array] = array(0,-1,1)
+Pattern["Col3",array] = array(1,-1,1)
+
+Pattern["Gear_0,0",array] = array("N")
+Pattern["Gear_-1,-1",array] = array("D1")
+Pattern["Gear_-1,1",array] = array("D2")
+Pattern["Gear_0,-1",array] = array("D3")
+Pattern["Gear_0,1",array] = array("D4")
+Pattern["Gear_1,-1",array] = array("D5")
+Pattern["Gear_1,1",array] = array("R")
+##############
+
+#####Code#####
+if(dupefinished()){reset()}
+
+#Function
+if(duped() | first()){
+    function void shiftGear(X, Y, Force){
+        if(!ShiftFlag){
+            GearPos += vec2(X,Y)
+            ShiftFlag = 1
+            if(!Force & ForceFlag){ForceFlag = 0}
+            elseif(Force){ForceFlag = 1}
+            timer("ShiftFlag",Delay*1000)
+            return
+        }
+        else{ return }
+    }
+
+    function void exception(Id, Text:string){
+        local Type = ""
+        switch(Id){
+            case 1, Type = "NullPoint" break
+            case 2, Type = "SuchElement" break
+            case 3, Type = "ArgumentMismatch" break
+            case 4, Type = "IO" break
+            case 5, Type = "OutOfRange" break
+            default, error("A fatal error has occurred. This must be fixed.") break
+        }
+        error(Type + "Exception : " + Text)
+    }
+}
+
+if(first()){
+    local Key = ""
+    local Ary = array()
+
+    #General
+    if(Delay < 0){ exception(5, "Delay cannot be less than 0.") }
+    if(InputPriority:lower() != "row" & InputPriority:lower() != "col"){ exception(4, "Invalid value in InputPriority.") }
+    if(KeyClutch == ""){Clutch = 1}
+    #ShifterToggle
+    local PtnKey = Pattern:keys()
+    local GearKey = array()
+    for(I=1,PtnKey:count()){
+        if(PtnKey[I,string]:sub(1,5) == "Gear_"){
+            GearKey[GearKey:count()+1,string] = PtnKey[I,string]
+        }
+    }
+    for(I=1,GearKey:count()){
+        Key = GearKey[I,string]
+        if(Pattern[Key,array]:count() > 1 & KeyShifterToggle1 == ""){exception(1, "Missing value in KeyShifterToggle1")}
+        if(Pattern[Key,array]:count() > 2 & KeyShifterToggle2 == ""){exception(1, "Missing value in KeyShifterToggle2")}
+    }
+
+    #Rows
+    local RowsFlag = 0
+    for(I=1,Pattern:count()){
+        Key = "Row" + toString(I)
+        Ary = Pattern[Key,array]
+        if(!RowsFlag){
+            ##Index check
+            if(Ary:count() == 0){
+                Rows = I-1
+                RowsFlag = 1
+                continue
+            }
+            ##Argument check
+            if(Ary:count() < 3 | Ary:count() > 4){
+            exception(3, "Expected 3 or 4 arguments, but got " + toString(Ary:count()) + " in Row" + toString(I) + ".")
+            }
+            ##Min Max value check
+            if(Ary[2,number] > Ary[3,number]){ exception(5, "Min cannot be larger than Max in Row" + toString(I) + ".") }
+            ##4th value check
+            if(Ary:count() == 4){
+                if(Ary[4,number] < Ary[2,number] | Ary[4,number] > Ary[3,number]){ exception(5, "4th argument out of range in Row" + toString(I) + ".") }
+            }
+        }
+        elseif(Ary:count() != 0){
+            exception(2, "Cannot find Row" + toString(I-1) + ".")
+        }
+    }
+    
+    #Cols
+    local ColsFlag = 0
+    for(I=1,Pattern:count()){
+        Key = "Col" + toString(I)
+        Ary = Pattern[Key,array]
+        if(!ColsFlag){
+            ##Index check
+            if(Ary:count() == 0){
+                Cols = I-1
+                ColsFlag = 1
+                continue
+            }
+            ##Argument check
+            if(Ary:count() < 3 | Ary:count() > 4){
+            exception(3, "Expected 3 or 4 arguments, but got " + toString(Ary:count()) + " in Col" + toString(I) + ".")
+            }
+            ##Min Max value check
+            if(Ary[2,number] > Ary[3,number]){ exception(5, "Min cannot be larger than Max in Col" + toString(I) + ".") }
+            ##4th value check
+            if(Ary:count() == 4){
+                if(Ary[4,number] < Ary[2,number] | Ary[4,number] > Ary[3,number]){ exception(5, "4th argument is out of range in Col" + toString(I) + ".") }
+            }
+        }
+        elseif(Ary:count() != 0){
+            exception(2, "Cannot find Col" + toString(I-1) + ".")
+        }
+    }
+
+    #Gears
+    local GearType = ""
+    for(I=1,Gear:count()){
+        GearType = Gear:keys()[I,string]
+        if(GearType:upper() == "C" | GearType:upper() == "D" | GearType:upper() == "R"){
+            if(Gear[GearType,array]:count() == 0){exception(2, "Cannot find any values in Gear[" + GearType + "].")}
+        }
+        else{ exception(4, "Invalid value in Gear[" + GearType + "].") }
+    }
+
+    local PtnKey = Pattern:keys()
+    local GearKey = array()
+    for(I=0,PtnKey:count()){
+        if(PtnKey[I,string]:sub(1,5) == "Gear_"){
+            GearKey[GearKey:count()+1,string] = PtnKey[I,string]
+        }
+    }
+    Gears = GearKey:count()
+    ##Gear count check
+    if(Gears == 0){exception(2, "Cannot find any gears.")}
+    
+    local ArrayFlag = 0
+    local PrimaryFlag = 0
+    local GearUpperTxt = ""
+    local GearToNum = 0
+    local GearFlag = table()
+    local GearTbl = table()
+    GearFlag["P",number] = 0
+    GearFlag["N",number] = 0
+    GearFlag["C",number] = 0
+    GearFlag["D",number] = 0
+    GearFlag["R",number] = 0
+    GearFlag["M",number] = 0
+    GearFlag["M+",number] = 0
+    GearFlag["M-",number] = 0
+
+    for(I=1,Gears){
+        Key = GearKey[I,string]
+        Ary = Pattern[Key,array]
+        ##Argument check
+        if(Ary:count() < 1 | Ary:count() == 3 | Ary:count() > 4){
+            exception(3, "Expected 1, 2 or 4 arguments, but got " + toString(Ary:count()) + " in " + Key + ".")
+        }
+        elseif(Ary[1,string]:upper() == "P" | Ary[1,string]:upper() == "N"){
+            if(Ary:count() > 1){ exception(3, "Expected 1 argument, but got " + toString(Ary:count()) + " in " + Key + ".") }
+        }
+        ##Array check
+        for(J=1,Ary:count()){
+            GearUpperTxt = Ary[J,string]:upper()
+            GearToNum = GearUpperTxt:sub(2):toNumber()
+            #P Gear
+            if(GearUpperTxt == "P"){
+                if(GearFlag["P",number]){ exception(4, "Cannot allocate multiple P gears.") }
+                GearFlag["P",number] = 1
+            }
+            #N Gear
+            elseif(GearUpperTxt == "N"){
+                if(GearFlag["N",number]){ exception(4, "Cannot allocate multiple N gears.") }
+                GearFlag["N",number] = 1
+            }
+            #R Gear
+            elseif(GearUpperTxt == "R"){
+                if(GearFlag["R",number]){ exception(4, "Cannot allocate multiple R gears.") }
+                GearFlag["R",number] = 1
+            }
+            #D Gear
+            elseif(GearUpperTxt == "D"){
+                if(GearFlag["D",number]){ exception(4, "Cannot allocate multiple D gears.") }
+                GearFlag["D",number] = 1
+            }
+            #M Gear
+            elseif(GearUpperTxt == "M" | GearUpperTxt == "M+" | GearUpperTxt == "M-"){
+                GearFlag[GearUpperTxt,number] = GearFlag[GearUpperTxt,number]+1
+            }
+            #C, D, R Gear
+            else{
+                if(GearUpperTxt:index(1) == "C" & Gear["C",array]:count() > 0){ GearFlag["C",number] = 1 }
+                if(!isnan(GearToNum) & GearToNum > 0 & GearToNum > Gear[GearUpperTxt:sub(2):toNumber(),array]:count()){GearTbl[GearUpperTxt,number] = 1}
+                else{ exception(4, "Invalid value in " + Key + " index " + J + ".") }
+            }
+        }
+        #N Gear
+        if(!GearFlag["N",number]){ exception(2, "Cannot find any N gears.") }
+        #C Gear
+        if(GearFlag["C",number] == 1){ exception(2, "Cannot find any C gears.") }
+        else{ GearFlag["C",number] = 0 }
+    }
+    #C, D, R Gear num check
+    local GearAryKey = GearTbl:keys()
+    local GearAryKey2Num = 0
+    for(I=1,GearAryKey:count()){
+        GearAryKey2Num = GearAryKey[I,string]:sub(2):toNumber()
+        if(GearAryKey[I,string] == "D"){ GearAryKey2Num = 0 }
+        if(GearAryKey2Num > GearAryKey:count()){ exception(4, "Invalid value in " + GearAryKey[I,string] + ".") }
+    }
+    for(I=1,GearTbl:count()+1){
+        #C Gear
+        if(!GearTbl:exists("C" + toString(I))){
+            if(I==1 & Gear["C",array]:count() > 0){ exception(2, "Cannot find any C gears.") }
+            else{ GearFlag["C",number] = 1 }
+        }
+        elseif(GearFlag["C",number]){ exception(4, "Invalid value in gear C" + I + ".") }
+        #D Gear
+        if(!GearTbl:exists("D" + toString(I - (GearTbl:exists("D") ? 1 : 0) ))){
+            if(!GearFlag["D",number]){
+                if(I==1 & Gear["D",array]:count() > 0){ exception(2, "Cannot find any D gears.") }
+                else{ GearFlag["D",number] = 1 }
+            }
+        }
+        else{
+            if(GearFlag["D",number]){ exception(4, "Invalid value in gear D" + I + ".") }
+            if(Gear["D",array]:count() <= 0){ exception(2, "Cannot find any D gears.") }
+        }
+        #R Gear
+        if(!GearTbl:exists("R" + toString(I))){
+            if(!GearFlag["R",number]){
+                if(I==1 & Gear["R",array]:count() > 0){ exception(2, "Cannot find any R gears.") }
+                else{ GearFlag["R",number] = 1 }
+            }
+        }
+        else{
+            if(GearFlag["R",number]){ exception(4, "Invalid value in gear R" + I + ".") }
+            if(Gear["R",array]:count() <= 0){ exception(2, "Cannot find any R gears.") }
+        }
+    }
+
+    #M, M+, M- check
+    local GearM = GearFlag["M",number] + GearFlag["M+",number] + GearFlag["M-",number]
+    if(GearM != 0 & GearM != 3){ exception(4, "Invalid value in gear Manual.") }
+
+    #Array
+    ##Key count check
+    if(Pattern:count() > Rows + Cols + Gears){ exception(4, "Invalid value count in Pattern.") }
+    
+    #Egp
+    if(Scale <= 0){ exception(5, "Scale cannot be less than 0.") }
+    if(Thickness <= 0 | Thickness >= 2){ exception(5, "Value out of range in Thickness.") }
+    if(KnobSize <= 0){ exception(5, "KnobSize cannot be less than 0.") }
+    if(KnobTextSize <= 0){ exception(5, "KnobTextSize cannot be less than 0.") }
+
+    timer("Initialize",500)
+}
+
+if(clk("Initialize")){
+    local Key = ""
+    local Ary = array()
+    local PosAry = array()
+
+    #Rows
+    local Left = 0
+    local Right = 0
+    local Direction = ""
+    for(I=1,Rows){
+        Key = "Row" + toString(I)
+        Ary = Pattern[Key,array]
+        for(J=Ary[2,number],Ary[3,number]){
+            Key = toString(J) + "," + Ary[1,number]
+            Left = J==Ary[2,number] ? 0 : 1
+            Right = J==Ary[3,number] ? 0 : 1
+            ##Row overlap check
+            if(Position[Key,array]:count() > 0){ exception(4, "Multiple rows overlapped in Row" + toString(I) + ".") }
+            else{Position[Key,array] = array(Left,Right,0,0,"","")}
+
+            #Force direction set          
+            if(Ary:count() == 4){
+                Direction = ""  
+                Mid = Ary[4,number]
+                if(J < Mid){Direction = "Right"}
+                elseif(J > Mid){Direction = "Left"}
+                if(Position[Key,array][5,string] == ""){
+                    Position[Key,array][5,string] = Direction
+                }
+                elseif(Direction != ""){ exception(4, "Multiple force directions overlapped in Row" + toString(I) + ".") }
+            }
+        }
+    }
+
+    #Cols
+    local Up = 0
+    local Down = 0
+    for(I=1,Cols){
+        Key = "Col" + toString(I)
+        Ary = Pattern[Key,array]
+        for(J=Ary[2,number],Ary[3,number]){
+            Key = Ary[1,number] + "," + toString(J)
+            Up = J==Ary[2,number] ? 0 : 1
+            Down = J==Ary[3,number] ? 0 : 1
+
+            PosAry = Position[Key,array]
+            if(PosAry:count() > 0){
+                ##Col overlap check
+                if(PosAry[3,number] != 0 | PosAry[4,number] != 0){ exception(4, "Multiple cols overlapped in Col" + toString(I) + ".") }
+                Position[Key,array][3,number] = Up
+                Position[Key,array][4,number] = Down
+            }
+            else{Position[Key,array] = array(0,0,Up,Down,"","")}
+
+            #Force direction set
+            if(Ary:count() == 4){
+                Direction = ""
+                Mid = Ary[4,number]
+                if(J < Mid){Direction = "Down"}
+                elseif(J > Mid){Direction = "Up"}
+                if(Position[Key,array][5,string] == ""){
+                    Position[Key,array][5,string] = Direction
+                }
+                elseif(Direction != ""){ exception(4, "Multiple force directions overlapped in Col" + toString(I) + ".") }
+            }
+        }
+    }
+
+    #Pattern check
+    local PatternFlag = 0
+    for(I=1, Rows){
+        PatternFlag = 0
+        Key = "Row" + toString(I)
+        Ary = Pattern[Key,array]
+        for(J=Ary[2,number],Ary[3,number]){
+            Key = toString(J) + "," + Ary[1,number]
+            PosAry = Position[Key,array]
+            if(PosAry[3,number] != 0 | PosAry[4,number] != 0){PatternFlag = 1}
+        }
+        if(!PatternFlag){ exception(4, "Unreachable Pattern in Row" + toString(I) + ".") }
+    }
+    for(I=1, Cols){
+        PatternFlag = 0
+        Key = "Col" + toString(I)
+        Ary = Pattern[Key,array]
+        for(J=Ary[2,number],Ary[3,number]){
+            Key = Ary[1,number] + "," + toString(J)
+            PosAry = Position[Key,array]
+            if(PosAry[1,number] != 0 | PosAry[2,number] != 0){PatternFlag = 1}
+        }
+        if(!PatternFlag){ exception(4, "Unreachable Pattern in Col" + toString(I) + ".") }
+    }
+    
+    #Gears
+    local PtnKey = Pattern:keys()
+    local GearKey = array()
+    for(I=0,PtnKey:count()){
+        if(PtnKey[I,string]:sub(1,5) == "Gear_"){
+            GearKey[GearKey:count()+1,string] = PtnKey[I,string]
+        }
+    }
+    for(I=1,Gears){
+        Key = GearKey[I,string]
+        GearStr = ""
+        for(J=1,Pattern[Key,array]:count()){
+            GearStr = GearStr + Pattern[Key,array][J,string]
+            if(J != Pattern[Key,array]:count()){GearStr = GearStr + "/"}
+        }
+        if(Position[Key:sub(6),array]:count() > 0){Position[Key:sub(6),array][6,string] = GearStr}
+        ##Gear position check
+        else{ exception(4, "Invalid value in Pattern[" + Key:sub(6) + "].") }
+    }
+
+    #Gear Array
+    
+    for(I=1, Gear["R",array]:count()){ GearAry[GearAry:count()+1,number] = Gear["R",array][I,number] }
+    GearAry[GearAry:count()+1,number] = 0
+    for(I=1, Gear["C",array]:count()){ GearAry[GearAry:count()+1,number] = Gear["C",array][I,number] }
+    for(I=1, Gear["D",array]:count()){ GearAry[GearAry:count()+1,number] = Gear["D",array][I,number] }
+
+    timer("Egp Render",500)
+}
+
+if(clk("Egp Render")){
+    Egp:egpClear()
+    Egp:egpBox(1,vec2(),vec2())
+    local X = 0
+    local Y = 0
+    local Id = 6
+    local Key = ""
+    local Ary = array()
+    #Rows
+    for(I=1,Rows){
+        Key = "Row" + toString(I)
+        Ary = Pattern[Key,array]
+        X = (Ary[2,number] + Ary[3,number]) * Scale
+        Y = Ary[1,number]*2 * Scale
+        Length = 1+(Ary[3,number] - Ary[2,number])*2
+        Egp:egpRoundedBox(Id,vec2(X,Y),vec2(Length*Scale+(Scale*(Thickness-1)),Scale*Thickness))
+        Egp:egpRadius(Id,Scale)
+        Egp:egpColor(Id,Color)
+        Egp:egpParent(Id,1)
+        Id += 1
+    }
+    #Cols
+    for(I=1,Cols){
+        Key = "Col" + toString(I)
+        Ary = Pattern[Key,array]
+        X = Ary[1,number]*2 * Scale
+        Y = (Ary[2,number] + Ary[3,number]) * Scale
+        Length = 1+(Ary[3,number] - Ary[2,number])*2
+        Egp:egpRoundedBox(Id,vec2(X,Y),vec2(Scale*Thickness,Length*Scale+(Scale*(Thickness-1))))
+        Egp:egpRadius(Id,Scale)
+        Egp:egpColor(Id,Color)
+        Egp:egpParent(Id,1)
+        Id += 1
+    }
+    #Gear knob
+    local Keys = Position:keys()
+    local GearText = ""
+    for(I=1,Position:count()){
+        Key = Keys[I,string]
+        GearText = Position[Key,array][6,string]
+        if(GearText == "P"){
+            GearStr = "P"
+            X = Key:explode(",")[1,string]:toNumber()
+            Y = Key:explode(",")[2,string]:toNumber()
+            break
+        }
+        elseif(GearText == "N"){
+            GearStr = "N"
+            X = Key:explode(",")[1,string]:toNumber()
+            Y = Key:explode(",")[2,string]:toNumber()
+            break
+        }
+    }
+        
+    #Gear knob
+    GearPos = vec2(X,Y)
+    Egp:egpCircle(2,vec2(X*Scale*2,Y*Scale*2),vec2(KnobSize/2))
+    Egp:egpColor(2,KnobColor)
+    Egp:egpParent(2,1)
+    ##Gear knob text
+    Egp:egpText(3,GearText,vec2(X,Y-40/2*KnobTextSize))
+    Egp:egpSize(3,40*KnobTextSize)
+    Egp:egpAlign(3,1)
+    Egp:egpColor(3,KnobTextColor)
+    Egp:egpParent(3,2)
+
+    ##Gear shiftertoggle1
+    if(KeyShifterToggle1 != ""){
+        Egp:egpRoundedBox(4,vec2(-KnobSize/6,0),vec2(KnobSize,KnobSize/2))
+        Egp:egpRadius(4,KnobSize/8)
+        Egp:egpColor(4,ShifterToggle1Color[1,vector])
+        Egp:egpParent(4,2)
+    }
+    
+    ##Gear shiftertoggle2
+    if(KeyShifterToggle2 != ""){
+        Egp:egpRoundedBox(5,vec2(0,-KnobSize/6),vec2(KnobSize/2,KnobSize))
+        Egp:egpRadius(5,KnobSize/8)
+        Egp:egpColor(5,ShifterToggle2Color[1,vector])
+        Egp:egpParent(5,2)
+    }
+    
+    Egp:egpOrderAbove(2,5)
+    Egp:egpOrderAbove(3,2)
+    Egp:egpPos(1,vec2(egpScrW(Chair:driver())-200,egpScrH(Chair:driver())-200)+Offset)
+}
+
+interval(50)
+
+#Egp link
+if(changed(Egp)){reset()}
+
+#Driver changed
+if(changed(Chair:driver()) & Chair:driver() != noentity()){
+    Driver = Chair:driver()
+    Egp:egpPos(1,vec2(egpScrW(Driver)-200,egpScrH(Driver)-200)+Offset)
+}
+
+#Shift delay
+if(clk("ShiftFlag")){ShiftFlag = 0}
+if(clk("AutoShiftFlag")){AutoShiftFlag = 0}
+
+#Clutch
+if(KeyClutch != ""){
+    if(changed(Driver:keyPressed(KeyClutch))){Clutch = Driver:keyPressed(KeyClutch)}
+}
+
+if(GearStr == "N"){
+    #ShifterToggle1
+    if(changed(Driver:keyPressed(KeyShifterToggle1)) & Driver:keyPressed(KeyShifterToggle1)){
+        ShifterToggle1 = !ShifterToggle1
+        Egp:egpColor(4,ShifterToggle1Color[ShifterToggle1+1,vector])
+    }
+    #ShifterToggle2
+    if(changed(Driver:keyPressed(KeyShifterToggle2)) & Driver:keyPressed(KeyShifterToggle2)){
+        ShifterToggle2 = !ShifterToggle2
+        Egp:egpColor(5,ShifterToggle2Color[ShifterToggle2+1,vector])
+    }
+}
+
+#Shifting
+if(!ShiftFlag){
+    Key = GearPos:x() + "," + GearPos:y()
+    Ary = Position[Key,array]
+    Force = 0
+    #Force direction
+    if(!ForceFlag & Ary[5,string] != ""){
+        Force = 1
+        if(InputPriority:lower() == "row"){
+            #Col
+            if(Ary[5,string] == "Up" & Ary[5,string] & !Driver:keyPressed(KeyDown)){shiftGear(0,-1,1)}
+            if(Ary[5,string] == "Down" & Ary[5,string] & !Driver:keyPressed(KeyUp)){shiftGear(0,1,1)}
+            #Row
+            if(Ary[5,string] == "Left" & Ary[5,string] & !Driver:keyPressed(KeyRight)){shiftGear(-1,0,1)}
+            if(Ary[5,string] == "Right" & Ary[5,string] & !Driver:keyPressed(KeyLeft)){shiftGear(1,0,1)}
+        }
+        elseif(InputPriority:lower() == "col"){
+            #Row
+            if(Ary[5,string] == "Left" & Ary[5,string] & !Driver:keyPressed(KeyRight)){shiftGear(-1,0,1)}
+            if(Ary[5,string] == "Right" & Ary[5,string] & !Driver:keyPressed(KeyLeft)){shiftGear(1,0,1)}
+            #Col
+            if(Ary[5,string] == "Up" & Ary[5,string] & !Driver:keyPressed(KeyDown)){shiftGear(0,-1,1)}
+            if(Ary[5,string] == "Down" & Ary[5,string] & !Driver:keyPressed(KeyUp)){shiftGear(0,1,1)}
+        }
+    }
+
+    #Shift
+    if(Clutch & !ShiftFlag) {       
+        if(InputPriority:lower() == "row"){
+            ##Row
+            if( (Driver:keyPressed(KeyLeft) & Ary[1,number]) | (Driver:keyPressed(KeyRight) & Ary[2,number]) ){
+                if((Driver:keyPressed(KeyRight) - Driver:keyPressed(KeyLeft)) != 0){shiftGear((Driver:keyPressed(KeyRight) - Driver:keyPressed(KeyLeft)),0,0)}
+            }
+            ##Col
+            if( (Driver:keyPressed(KeyUp) & Ary[3,number]) | (Driver:keyPressed(KeyDown) & Ary[4,number]) ){
+                if((Driver:keyPressed(KeyDown) - Driver:keyPressed(KeyUp)) != 0){shiftGear(0,(Driver:keyPressed(KeyDown) - Driver:keyPressed(KeyUp)),0)}
+            }
+
+        }
+        elseif(InputPriority:lower() == "col"){
+            ##Col
+            if( (Driver:keyPressed(KeyUp) & Ary[3,number]) | (Driver:keyPressed(KeyDown) & Ary[4,number]) ){
+                if((Driver:keyPressed(KeyDown) - Driver:keyPressed(KeyUp)) != 0){shiftGear(0,(Driver:keyPressed(KeyDown) - Driver:keyPressed(KeyUp)),0)}
+            }
+            ##Row
+            if( (Driver:keyPressed(KeyLeft) & Ary[1,number]) | (Driver:keyPressed(KeyRight) & Ary[2,number]) ){
+                if((Driver:keyPressed(KeyRight) - Driver:keyPressed(KeyLeft)) != 0){shiftGear((Driver:keyPressed(KeyRight) - Driver:keyPressed(KeyLeft)),0,0)}
+            }
+        }
+        
+    }
+
+    #Force direction
+    if (!Force & Ary[5,string] != "") {
+        if(InputPriority:lower() == "row"){
+            #Col
+            if(Ary[5,string] == "Up" & Ary[5,string] & !Driver:keyPressed(KeyDown)){shiftGear(0,-1,1)}
+            if(Ary[5,string] == "Down" & Ary[5,string] & !Driver:keyPressed(KeyUp)){shiftGear(0,1,1)}
+            #Row
+            if(Ary[5,string] == "Left" & Ary[5,string] & !Driver:keyPressed(KeyRight)){shiftGear(-1,0,1)}
+            if(Ary[5,string] == "Right" & Ary[5,string] & !Driver:keyPressed(KeyLeft)){shiftGear(1,0,1)}
+        }
+        elseif(InputPriority:lower() == "col"){
+            #Row
+            if(Ary[5,string] == "Left" & Ary[5,string] & !Driver:keyPressed(KeyRight)){shiftGear(-1,0,1)}
+            if(Ary[5,string] == "Right" & Ary[5,string] & !Driver:keyPressed(KeyLeft)){shiftGear(1,0,1)}
+            #Col
+            if(Ary[5,string] == "Up" & Ary[5,string] & !Driver:keyPressed(KeyDown)){shiftGear(0,-1,1)}
+            if(Ary[5,string] == "Down" & Ary[5,string] & !Driver:keyPressed(KeyUp)){shiftGear(0,1,1)}
+        }
+    }
+}
+
+##Egp
+if(changed(GearPos)){
+    local Key = GearPos:x() + "," + GearPos:y()
+    local X = GearPos:x()*Scale*2
+    local Y = GearPos:y()*Scale*2
+    Egp:egpPos(2,vec2(X,Y))
+    local Index = clamp(1+ShifterToggle1+ShifterToggle2*2, 1, Position[Key,array][6,string]:explode("/"):count())
+    GearStr = Position[Key,array][6,string]:explode("/")[Index,string]:upper()
+    ###Text
+    if(GearStr:index(1) == "D"){ Egp:egpSetText(3,GearStr:sub(2)) }
+    elseif(GearStr == ""){ Egp:egpSetText(3,"N") }
+    else{ Egp:egpSetText(3,GearStr) }
+
+    ##Gear
+    if(GearStr == "D"){
+        if(GearInt < Gear["D",array][1,number] | GearInt > Gear["D",array][Gear["D",array]:count(),number]){ GearInt = Gear["D",array][1,number] }
+    }
+    if(GearStr == "R"){
+        if(GearInt < Gear["R",array][1,number] | GearInt > Gear["R",array][Gear["D",array]:count(),number]){ GearInt = Gear["R",array][1,number] }
+    }
+    if(GearStr == "M+"){
+        local Index = 0
+        for(I=1,GearAry:count()){
+            if(GearAry[I,number] == GearInt){
+                GearInt = GearAry[clamp(I+1,1,GearAry:count()),number]
+                break
+            }
+        }
+    }
+    elseif(GearStr == "M-"){
+        local Index = 0
+        for(I=1,GearAry:count()){
+            if(GearAry[I,number] == GearInt){
+                GearInt = GearAry[clamp(I-1,1,GearAry:count()),number]
+                break
+            }
+        }
+    }
+    elseif(GearStr != "M"){ GearInt = Gear[GearStr:index(1),array][GearStr:sub(2):toNumber(),number] }
+}
+
+##Gear
+if(!AutoShiftFlag){
+    if(GearStr == "D"){
+        if(Rpm >= Powerband:y() & GearInt != Gear["D",array][Gear["D",array]:count(),number]){
+            AutoShiftFlag = 1
+            timer("AutoShiftFlag", Delay)
+            GearInt = clamp(GearInt+1,Gear["D",array][1,number],Gear["D",array][Gear["D",array]:count(),number])
+        }
+        elseif(Rpm <= Powerband:x() & GearInt != Gear["D",array][1,number]){
+            AutoShiftFlag = 1
+            timer("AutoShiftFlag", Delay)
+            GearInt = clamp(GearInt-1,Gear["D",array][1,number],Gear["D",array][Gear["D",array]:count(),number])
+        }
+    }
+    elseif(GearStr == "R"){
+        if(Rpm >= Powerband:y() & GearInt != Gear["R",array][Gear["R",array]:count(),number]){
+            AutoShiftFlag = 1
+            timer("AutoShiftFlag", Delay)
+            GearInt = clamp(GearInt-1,Gear["R",array][1,number],Gear["R",array][Gear["R",array]:count(),number])
+        }
+        elseif(Rpm <= Powerband:x() & GearInt != Gear["R",array][1,number]){
+            AutoShiftFlag = 1
+            timer("AutoShiftFlag", Delay)
+            GearInt = clamp(GearInt+1,Gear["R",array][1,number],Gear["R",array][Gear["R",array]:count(),number])
+        }
+    }
+}
+Ops = ops()
