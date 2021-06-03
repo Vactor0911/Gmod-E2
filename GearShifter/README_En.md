@@ -1,6 +1,6 @@
 # Gear Shifter
 Adjustable gear shifter with EGP Hud, and custom settings.  
-Refer to "ShifterPattern.txt" for example patterns.
+Refer to "ShifterPattern" for example patterns.
 
 ## Settings
 KeyLeft #KeyLeft                                      **#Left**  
