@@ -23,7 +23,7 @@ Thickness = 1                                         **#Gear shifter thickness 
 Color = vec(150)                                      **#Gear shifter color**  
 KnobSize = 50                                         **#Gear knob size (pixel)**  
 KnobColor = vec(200)                                  **#Gear knob color**  
-KnobTextSize = 1                                      **#Gear knob text size (multiply, based on Scale)**  
+KnobTextSize = 1                                      **#Gear knob text size (multiply, based on KnobSize)**  
 KnobTextColor = vec(0)                                **#Gear knob text color**  
 ShifterToggle1Color = array(vec(55,0,0),vec(255,0,0)) **#Ranger color (off, on)**  
 ShifterToggle2Color = array(vec(0,0,55),vec(0,0,255)) **#Splitter color (off, on)**  
@@ -75,7 +75,7 @@ format)
 Gear["{Gear Type}",array] = array({Gear}) **#Gear Type must be one between C, D, and R. / You don't have to write C gear if you don't use unlike D and R.**  
 Pattern["Row{n}",array] = array(Ypos, Xmin, Xmax, ForceDirection MidPos) **Leave {ForceDirection MidPos} empty if you don't want to use it.**  
 Pattern["Col{n}",array] = array(Xpos, Ymin, Ymax, ForceDirection MidPos) **Leave {ForceDirection MidPos} empty if you don't want to use it.**  
-Pattern["Gear_{Pos}",array] = array({Gear Text}) **The amount of gears must be in range between 1 to 4. / You must use KeyShifterToggle1 at over 2, KeyShifterToggle2 at over 3.**  
+Pattern["Gear_{Pos}",array] = array({Gear Text}) **The amount of {Gear Text} must be in range between 1 to 4. / You must use KeyShifterToggle1 at over 2, KeyShifterToggle2 at over 3.**  
 
 ex)  
 Gear["D",array] = array(1,2,3,4,5)  
