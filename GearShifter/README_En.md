@@ -51,23 +51,23 @@ Pattern["Gear_1,1",array] = array("R")
 ### 1. Draw pattern what you want to make.
 If you don't want to make any problems, I highly recommend to draw shifter pattern on grid or paper, etc.  
 In this example, I will use this pattern for explain.  
-![Example Pattern](/image/test.png)
+![Example Pattern](/GearShifter/image/PatternEx01.png)
 ### 2. Check your pattern before starting.
 If you draw your pattern, then check it.  
 The pattern must not have any empty space, invalid route, and overlap section.  
 Also check if the ForceDirection is correct.
 ### 3. Give cordinates to each points.
 After that, give cordinates to each points and corners.  
-![Example Pattern](/image/PatternEx02.png "Example pattern for explain.")  
+![Example Pattern](/GearShifter/image/PatternEx02.png "Example pattern for explain.")  
 In this example, I set Gear N to [-1,0].  
 ### 4. Set up ForceDirection to each lines.
 `ForceDirection` is new system in this E2 which makes gear move to specific location by it self.  
 You need to set up it's mid point to use ForceDirection.  
-![Example Pattern](/image/PatternEx03.png "Example pattern for explain.")
+![Example Pattern](/GearShifter/image/PatternEx03.png "Example pattern for explain.")
 ### 5. Set up gears to points you want.
 And then, you need to put gears in right position you want.  
 Gears must not overlapped with each other without ranger or splitter.  
-![Example Pattern](/image/PatternEx04.png "Example pattern for explain.")
+![Example Pattern](/GearShifter/image/PatternEx04.png "Example pattern for explain.")
 ### 6. Fill up Pattern and Gear array.
 Finally, fill up two arrays in correct format.  
 
