@@ -1,0 +1,89 @@
+[General]
+Gear["D",array] = array(1,2,3,4,5)
+Gear["R",array] = array(-1)
+
+Pattern["Row1",array] = array(0,-1,1,0)
+
+Pattern["Col1",array] = array(-1,-1,1)
+Pattern["Col2",array] = array(0,-1,1)
+Pattern["Col3",array] = array(1,-1,1)
+
+Pattern["Gear_0,0",array] = array("N")
+Pattern["Gear_-1,-1",array] = array("D1")
+Pattern["Gear_-1,1",array] = array("D2")
+Pattern["Gear_0,-1",array] = array("D3")
+Pattern["Gear_0,1",array] = array("D4")
+Pattern["Gear_1,-1",array] = array("D5")
+Pattern["Gear_1,1",array] = array("R")
+
+[Simple Auto]
+Gear["D",array] = array(1,2,3,4,5)
+Gear["R",array] = array(-1)
+
+Pattern["Col1",array] = array(0,-2,3)
+
+Pattern["Gear_0,-2"] = array("P")
+Pattern["Gear_0,-1"] = array("R")
+Pattern["Gear_0,0"] = array("N")
+Pattern["Gear_0,1"] = array("D")
+Pattern["Gear_0,2"] = array("2")
+Pattern["Gear_0,3"] = array("1")
+
+[Modern Auto]
+Gear["D",array] = array(1,2,3,4,5)
+Gear["R",array] = array(-1)
+
+Pattern["Row1",array] = array(1,-1,0)
+
+Pattern["Col1",array] = array(0,-2,1)
+Pattern["Col2",array] = array(-1,0,2,1)
+
+Pattern["Gear_0,-2",array] = array("P")
+Pattern["Gear_0,-1",array] = array("R")
+Pattern["Gear_0,0",array] = array("N")
+Pattern["Gear_0,1",array] = array("D")
+Pattern["Gear_-1,1",array] = array("M")
+Pattern["Gear_-1,0",array] = array("M+")
+Pattern["Gear_-1,2",array] = array("M-")
+
+[Classic Auto]
+Gear["D",array] = array(1,2,3,4,5)
+Gear["R",array] = array(-1)
+
+Pattern["Row1",array] = array(-2,-1,1,-1)
+Pattern["Row2",array] = array(-1,0,1,0)
+Pattern["Row3",array] = array(0,-1,0,-1)
+Pattern["Row4",array] = array(1,-1,0)
+Pattern["Row5",array] = array(2,0,1,0)
+
+Pattern["Col1",array] = array(1,-2,-1)
+Pattern["Col2",array] = array(0,-1,0)
+Pattern["Col3",array] = array(-1,0,1)
+Pattern["Col4",array] = array(0,1,2)
+Pattern["Col5",array] = array(1,2,3)
+
+Pattern["Gear_-1,-2",array] = array("P")
+Pattern["Gear_0,-1",array] = array("R")
+Pattern["Gear_-1,0",array] = array("N")
+Pattern["Gear_-1,1",array] = array("D")
+Pattern["Gear_0,1",array] = array("D3")
+Pattern["Gear_0,2",array] = array("D2")
+Pattern["Gear_1,3",array] = array("D1")
+
+[Scania 12+2 Manual]
+Gear["C",array] = array(1,2)
+Gear["D",array] = array(3,4,5,6,7,8,9,10,11,12,13,14)
+Gear["R",array] = array(-1,-2)
+
+Pattern["Row1",array] = array(0,-1,1,0)
+
+Pattern["Col1",array] = array(-1,-1,1)
+Pattern["Col2",array] = array(0,0,1)
+Pattern["Col3",array] = array(1,-1,1)
+
+Pattern["Gear_0,0",array] = array("N")
+Pattern["Gear_-1,-1",array] = array("R1","R1","R2","R2")
+Pattern["Gear_-1,1",array] = array("C1","C2","C1","C2")
+Pattern["Gear_0,1",array] = array("D1","D2","D7","D8")
+Pattern["Gear_1,-1",array] = array("D3","D4","D9","D10")
+Pattern["Gear_1,1",array] = array("D5","D6","D11","D12")
