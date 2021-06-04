@@ -260,34 +260,37 @@ if(first()){
         if(GearAryKey[I,string] == "D"){ GearAryKey2Num = 0 }
         if(GearAryKey2Num > GearAryKey:count()){ exception(4, "Invalid value in " + GearAryKey[I,string] + ".") }
     }
-    for(I=1,GearTbl:count()+1){
-        #C Gear
-        if(!GearTbl:exists("C" + toString(I))){
-            if(I==1 & Gear["C",array]:count() > 0){ exception(2, "Cannot find any C gears.") }
-            else{ GearFlag["C",number] = 1 }
-        }
-        elseif(GearFlag["C",number]){ exception(4, "Invalid value in gear C" + I + ".") }
-        #D Gear
-        if(!GearTbl:exists("D" + toString(I - (GearTbl:exists("D") ? 1 : 0) ))){
-            if(!GearFlag["D",number]){
-                if(I==1 & Gear["D",array]:count() > 0){ exception(2, "Cannot find any D gears.") }
-                else{ GearFlag["D",number] = 1 }
+    if(GearTbl:count() > 0){
+        for(I=1,GearTbl:count()+1){
+            #C Gear
+            if(!GearTbl:exists("C" + toString(I))){
+                if(I==1 & Gear["C",array]:count() > 0){ exception(2, "Cannot find any C gears.") }
+                else{ GearFlag["C",number] = 1 }
             }
-        }
-        else{
-            if(GearFlag["D",number]){ exception(4, "Invalid value in gear D" + I + ".") }
-            if(Gear["D",array]:count() <= 0){ exception(2, "Cannot find any D gears.") }
-        }
-        #R Gear
-        if(!GearTbl:exists("R" + toString(I))){
-            if(!GearFlag["R",number]){
-                if(I==1 & Gear["R",array]:count() > 0){ exception(2, "Cannot find any R gears.") }
-                else{ GearFlag["R",number] = 1 }
+            elseif(GearFlag["C",number]){ exception(4, "Invalid value in gear C" + I + ".") }
+            #D Gear
+            local DKey = toString(I - (GearTbl:exists("D") ? 1 : 0))
+            if(!GearTbl:exists("D" + (DKey == "0" ? "" : DKey) )){
+                if(!GearFlag["D",number]){
+                    if(I==1 & Gear["D",array]:count() > 0){ exception(2, "Cannot find any D gears.") }
+                    else{ GearFlag["D",number] = 1 }
+                }
             }
-        }
-        else{
-            if(GearFlag["R",number]){ exception(4, "Invalid value in gear R" + I + ".") }
-            if(Gear["R",array]:count() <= 0){ exception(2, "Cannot find any R gears.") }
+            else{
+                if(GearFlag["D",number]){ exception(4, "Invalid value in gear D" + I + ".") }
+                if(Gear["D",array]:count() <= 0){ exception(2, "Cannot find any D gears.") }
+            }
+            #R Gear
+            if(!GearTbl:exists("R" + toString(I))){
+                if(!GearFlag["R",number]){
+                    if(I==1 & Gear["R",array]:count() > 0){ exception(2, "Cannot find any R gears.") }
+                    else{ GearFlag["R",number] = 1 }
+                }
+            }
+            else{
+                if(GearFlag["R",number]){ exception(4, "Invalid value in gear R" + I + ".") }
+                if(Gear["R",array]:count() <= 0){ exception(2, "Cannot find any R gears.") }
+            }
         }
     }
 
