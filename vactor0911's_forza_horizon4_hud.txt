@@ -1,0 +1,141 @@
+@name Vactor0911's Forza Horizon4 Hud
+@inputs Egp:wirelink [Base,Chair]:entity Rpm Gear Abs Tcr Stm
+@outputs Render Kph
+@persist Poly:array REDLINE POWERBAND_END REVERSE_GEAR ALPHA Ang Ang_1K
+@trigger 
+
+###Setting###
+REDLINE = 8500       #Engine's Redline
+POWERBAND_END = 8000 #Engine's Powerband End
+REVERSE_GEAR = 9  #Gear's Reverse Gear
+ALPHA = 30        #Alpha value
+ABS = 1           #Abs Display
+TCR = 1           #Tcr Display
+STM = 0           #Stm Display
+#############
+
+if(dupefinished()){reset()}
+
+#Egp Render
+if(first()){
+    Egp:egpClear()
+    Egp:egpCircle(1,vec2(1727,878),vec2(5,5)) Egp:egpAlpha(1,0)
+    Poly = array()
+    for(I=0,360){Poly[I,vector2] = vec2(27,0):rotate(I)}
+    Egp:egpPolyOutline(2,Poly) Egp:egpSize(2,2) Egp:egpParent(2,1)
+    Egp:egpText(3,"N",vec2(0,-26)) Egp:egpSize(3,50) Egp:egpAlign(3,1) Egp:egpParent(3,1)
+    Poly = array()
+    for(I=0,240){
+        Poly[I,vector2] = vec2(0,37):rotate(I+30)
+        Poly[480-I+1,vector2] = vec2(0,37):rotate(I+30)
+    }
+    Egp:egpPolyOutline(4,Poly) Egp:egpSize(4,2) Egp:egpParent(4,1) Egp:egpAlpha(4,ALPHA)
+    Egp:egpText(7,"0",vec2(10,10)) Egp:egpAlign(7,1) Egp:egpSize(7,140) Egp:egpParent(7,1) Egp:egpFont(7,"halflife2") Egp:egpAlpha(7,ALPHA)
+    Egp:egpText(8,"0",vec2(65,10)) Egp:egpAlign(8,1) Egp:egpSize(8,140) Egp:egpParent(8,1) Egp:egpFont(8,"halflife2") Egp:egpAlpha(8,ALPHA)
+    Egp:egpText(9,"0",vec2(120,10)) Egp:egpAlign(9,1) Egp:egpSize(9,140) Egp:egpParent(9,1) Egp:egpFont(9,"halflife2") Egp:egpAlpha(9,ALPHA)
+    Egp:egpText(10,"KM/H",vec2(115,10)) Egp:egpAlign(10,1) Egp:egpSize(10,25) Egp:egpParent(10,1) Egp:egpAlpha(10,ALPHA)
+    if(ABS){Egp:egpText(11,"ABS",vec2(-80,(TCR+STM)*-9-9)) Egp:egpAlign(11,1) Egp:egpSize(11,18) Egp:egpParent(11,1) Egp:egpAlpha(11,ALPHA)}
+    if(TCR){Egp:egpText(12,"TCR",vec2(-80,(ABS-STM)*9-9)) Egp:egpAlign(12,1) Egp:egpSize(12,18) Egp:egpParent(12,1) Egp:egpAlpha(12,ALPHA)}
+    if(STM){Egp:egpText(13,"STM",vec2(-80,(ABS+TCR)*9-9)) Egp:egpAlign(13,1) Egp:egpSize(13,18) Egp:egpParent(13,1) Egp:egpAlpha(13,ALPHA)}
+    
+    Render = 0
+    Ang_1K = 240/REDLINE*1000
+    timer("Rpm Gauge",300)
+}
+
+interval(20)
+
+if(clk("Rpm Gauge")){
+    Ang = round(240/REDLINE*min(1000,REDLINE-Render*1000))
+    Poly = array()
+    #Drawing Rpm Gauge
+    for(I=1,Ang-2){
+        Poly[I,vector2] = vec2(0,143):rotate(I+Render*Ang_1K+30)
+        Poly[(Ang-2)*2-I+1,vector2] = vec2(0,142):rotate(I+Render*Ang_1K+30)
+    }
+    Egp:egpPolyOutline(14+Render*6,Poly) Egp:egpSize(14+Render*6,3) Egp:egpParent(14+Render*6,1)
+    if(Render*1000 >= POWERBAND_END){Egp:egpColor(14+Render*6,vec(234,30,84))}
+    else{Egp:egpAlpha(14+Render*6,ALPHA)}
+    #Drawing Rpm Gradation
+    for(I=1,round((100/Ang_1K*Ang)/25)){
+        Egp:egpBox(14+(Render+1)*6-I,vec2(0,137):rotate(I*round(Ang_1K/5)+Render*Ang_1K+30),vec2(4,2))
+        Egp:egpAlpha(14+(Render+1)*6-I,ALPHA) Egp:egpAngle(14+(Render+1)*6-I,vec2(0,137):rotate(I*round(Ang_1K/5)+Render*Ang_1K+30):toAngle())
+        Egp:egpParent(14+(Render+1)*6-I,1)
+    }
+    #Repeating
+    Render+=1
+    if(Render < ceil(REDLINE/1000)){timer("Rpm Gauge",200)}
+    else{timer("Rpm Number",200)}
+}
+#Drawing Rpm Number
+if(clk("Rpm Number")){
+    for(I=0,floor(REDLINE/1000)){
+        Egp:egpText(14+(I+1)*6-5,toString(I),vec2(0,127):rotate(I*Ang_1K+30)-vec2(0,9))
+        Egp:egpParent(14+(I+1)*6-5,1) Egp:egpAlign(14+(I+1)*6-5,1) Egp:egpSize(14+(I+1)*6-5,16)
+        if(I*1000 >= POWERBAND_END){Egp:egpColor(14+(I+1)*6-5,vec(234,30,84))}
+        else{Egp:egpAlpha(14+(I+1)*6-5,ALPHA)}
+    }
+    if((floor(REDLINE/1000)*1000-POWERBAND_END) % 1000 != 0){timer("Powerband End",200)}
+    else{timer("Rpm Needle",200)}
+}
+if(clk("Powerband End")){
+    A = toString((floor(REDLINE/1000)*1000)-POWERBAND_END)
+    B = A:toNumber() >= 1000 ? A:sub(2,A:length()):toNumber() : A:toNumber()
+    C = Ang_1K/1000*B
+    D = Ang_1K/1000*(REDLINE-POWERBAND_END-B)
+    Poly = array()
+    for(I=2,C){
+        Poly[I-1,vector2] = vec2(143,0):rotate(I*-1-D)
+        Poly[C*2-I-1,vector2] = vec2(142,0):rotate(I*-1-D)
+    }
+    Egp:egpPolyOutline(300,Poly) Egp:egpParent(300,1) Egp:egpSize(300,3) Egp:egpColor(300,vec(234,30,84))
+    timer("Rpm Needle",200)
+}
+if(clk("Rpm Needle")){
+    Egp:egpCircle(5,vec2(0,0),vec2(5,5)) Egp:egpParent(5,1) Egp:egpAlpha(5,0)
+    Poly = array() Poly[1,vector2] = vec2(-2,-144) Poly[2,vector2] = vec2(2,-144) Poly[3,vector2] = vec2(3,-37) Poly[4,vector2] = vec2(-3,-37)
+    Egp:egpPoly(6,Poly) Egp:egpParent(6,5)
+    Egp:egpAngle(5,-150)
+}
+
+#Driver
+if(changed(Chair:driver()) & Chair:driver() != noentity()){
+    Egp:egpPos(1,vec2(1727/1920*egpScrW(Chair:driver()),878/1080*egpScrH(Chair:driver())))
+}
+
+#Gear
+if(changed(Gear)){
+    if(Gear == 0 | Gear == REVERSE_GEAR){Egp:egpColor(2,vec(255,255,255)) Egp:egpColor(3,vec(255,255,255))
+        if(Gear == 0){Egp:egpSetText(3,"N")}
+        if(Gear == REVERSE_GEAR){Egp:egpSetText(3,"R")}
+    }
+    else{Egp:egpColor(2,vec(23,255,145)) Egp:egpColor(3,vec(23,255,145)) Egp:egpSetText(3,toString(Gear- (REVERSE_GEAR==1 ? 1 : 0)))}
+}
+if(changed(Rpm) | changed(Gear)){
+    if(Gear != 0 & Gear != REVERSE_GEAR){
+        if(Rpm >= POWERBAND_END){Egp:egpColor(2,vec(234,30,84)) Egp:egpColor(3,vec(234,30,84))}
+        else{Egp:egpColor(2,vec(23,255,145)) Egp:egpColor(3,vec(23,255,145))}
+    }
+    
+    #RPM Needle
+    Egp:egpAngle(5,clamp(-150+(240/REDLINE)*Rpm,-150,90))
+}
+
+#Kph
+if(changed(floor(toUnit("km/h",Base:vel():length())))){
+    Kph = clamp(floor(toUnit("km/h",Base:vel():length())),0,999)
+    if(Kph < 10){Speed = "00"+toString(Kph)}
+    elseif(Kph < 100){Speed = "0"+toString(Kph)}
+    else{Speed = toString(Kph)}
+    Egp:egpSetText(7,Speed:index(1)) Egp:egpAlpha(7, Kph >= 100 ? 255 : ALPHA)
+    Egp:egpSetText(8,Speed:index(2)) Egp:egpAlpha(8, Kph >= 10 ? 255 : ALPHA)
+    Egp:egpSetText(9,Speed:index(3)) Egp:egpAlpha(9, Kph > 0 ? 255 : ALPHA)
+}
+
+#ABS, TCR, STM Indicator
+if(ABS & changed(Abs)){Egp:egpColor(11,vec(255-232*clamp(floor(Abs),0,1),255,255-110*clamp(floor(Abs),0,1))) Egp:egpAlpha(11,floor(Abs) ? 255 : ALPHA)}
+if(TCR & changed(Tcr)){Egp:egpColor(12,vec(255-232*clamp(floor(Tcr),0,1),255,255-110*clamp(floor(Tcr),0,1))) Egp:egpAlpha(12,floor(Tcr) ? 255 : ALPHA)}
+if(STM & changed(Stm)){Egp:egpColor(13,vec(255-232*clamp(floor(Stm),0,1),255,255-110*clamp(floor(Stm),0,1))) Egp:egpAlpha(13,floor(Stm) ? 255 : ALPHA)}
+
+#Egp Re-Render
+if(changed(Egp)){reset()}
