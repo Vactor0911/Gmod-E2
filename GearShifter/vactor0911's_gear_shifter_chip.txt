@@ -15,7 +15,7 @@ KeyUp = "Pad_8"
 KeyDown = "Pad_5"
 KeyShifterToggle1 = ""
 KeyShifterToggle2 = ""
-KeyClutch = "LShift"
+KeyClutch = ""
 Delay = 0.2
 InputPriority = "Col"
 
@@ -243,12 +243,15 @@ if(first()){
                 else{ exception(4, "Invalid value in " + Key + " index " + J + ".") }
             }
         }
-        #N Gear
-        if(!GearFlag["N",number]){ exception(2, "Cannot find any N gears.") }
-        #C Gear
-        if(GearFlag["C",number] == 1){ exception(2, "Cannot find any C gears.") }
-        else{ GearFlag["C",number] = 0 }
     }
+    #N Gear
+    if(!GearFlag["N",number]){ exception(2, "Cannot find any N gears.") }
+    #C Gear
+    if(GearFlag["C",number] == 1){ exception(2, "Cannot find any C gears.") }
+    else{ GearFlag["C",number] = 0 }
+    #D Gear
+    GearFlag["D",number] = 0
+    
     #C, D, R Gear num check
     local GearAryKey = GearTbl:keys()
     local GearAryKey2Num = 0
@@ -630,7 +633,8 @@ if(changed(GearPos)){
     local Index = clamp(1+ShifterToggle1+ShifterToggle2*2, 1, Position[Key,array][6,string]:explode("/"):count())
     GearStr = Position[Key,array][6,string]:explode("/")[Index,string]:upper()
     ###Text
-    if(GearStr:index(1) == "D"){ Egp:egpSetText(3,GearStr:sub(2)) }
+    if(GearStr == "D"){ Egp:egpSetText(3,"D") }
+    elseif(GearStr:index(1) == "D"){ Egp:egpSetText(3,GearStr:sub(2)) }
     elseif(GearStr == ""){ Egp:egpSetText(3,"N") }
     else{ Egp:egpSetText(3,GearStr) }
 
