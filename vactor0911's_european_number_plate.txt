@@ -1,0 +1,359 @@
+@name Vactor0911's European Number Plate
+@inputs 
+@outputs Text:string Country
+@persist 
+@trigger none
+
+###Setting###
+TEXT = "1!" #10 letters maximum
+Country = 20     #0 ~ 32
+#[
+{ Country List }
+0  (Clear plate)
+1  Austria
+2  Belgium
+3  Bulgaria
+4  Croatia
+5  Cyprus
+6  CZECH Republic
+7  Denmark
+8  Estonia
+9  Finland
+10 France
+11 Germany
+12 Greece
+13 Hungary
+14 Ireland
+15 Italy
+16 Latvia
+17 Lithuania
+18 Luxembourg
+19 Malta
+20 Netherland
+21 Norway
+22 Poland
+23 Portugal
+24 Romania
+25 Russian Federation
+26 Slovakia
+27 Slovenia
+28 Spain
+29 Sweden
+30 Switzerland
+31 Turkey
+32 United Kingdom
+]#
+#############
+
+#Exceptions
+if(first()){
+    if(TEXT:length() > 10){ error("TEXT cannot be longer than 10 letters.") }
+    if(Country < 0 || Country > 32){ error("Value out of range in Country.") }
+    for(I=1,TEXT:length()){
+        if(TEXT:index(I):toNumber() == 0 & TEXT:index(I) != "_"){ error("Invalid character in TEXT : " + TEXT:index(I)) }
+    }
+}
+
+BLUE0 = vec(0,142,211)
+BLUE1 = vec(0,123,224)
+BLUE2 = vec(67,113,181)
+BLUE3 = vec(23,71,153)
+BLUE4 = vec(2,40,132)
+
+RED0 = vec(210,25,0)
+
+if(dupefinished()){reset()}
+
+function void holoSetting(Min,Max){
+    for(I=Min,Max){holoParent(I,entity()) holoMaterial(I,"models/debug/debugwhite")}
+}
+
+#Plate Base
+if(first()){
+    holoCreate(1,entity():toWorld(vec(0,0,-0.17)),vec(0.1,1,1),entity():toWorld(ang(-90,0,0)),vec4(255,255,255,255),"models/sprops/trans/plates/license_2.mdl")
+    holoCreate(2,entity():toWorld(vec(-1.85,-9.85,0)),vec(0.05,0.16,0.05),entity():toWorld(ang(0,0,90)),vec4(0,0,0,255),"models/sprops/geometry/qring_12.mdl")
+    holoCreate(3,entity():toWorld(vec(1.85,-9.85,0)),vec(0.05,0.16,0.05),entity():toWorld(ang(0,90,90)),vec4(0,0,0,255),"models/sprops/geometry/qring_12.mdl")
+    holoCreate(4,entity():toWorld(vec(-1.85,9.85,0)),vec(0.05,0.16,0.05),entity():toWorld(ang(0,0,-90)),vec4(0,0,0,255),"models/sprops/geometry/qring_12.mdl")
+    holoCreate(5,entity():toWorld(vec(1.85,9.85,0)),vec(0.05,0.16,0.05),entity():toWorld(ang(0,180,90)),vec4(0,0,0,255),"models/sprops/geometry/qring_12.mdl")
+    holoCreate(6,entity():toWorld(vec(-1.94,0,0)),vec(3.235,0.16,0.08),entity():toWorld(ang(0,90,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    holoCreate(7,entity():toWorld(vec(-1.91,0,0)),vec(3.235,0.16,0.08),entity():toWorld(ang(0,90,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    holoCreate(8,entity():toWorld(vec(1.94,0,0)),vec(3.235,0.16,0.08),entity():toWorld(ang(0,90,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    holoCreate(9,entity():toWorld(vec(1.91,0,0)),vec(3.235,0.16,0.08),entity():toWorld(ang(0,90,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    holoCreate(10,entity():toWorld(vec(0,-9.91,0)),vec(0.57,0.16,0.08),entity():toWorld(ang(0,0,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    holoCreate(11,entity():toWorld(vec(0,-9.95,0)),vec(0.57,0.16,0.07),entity():toWorld(ang(0,0,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    holoCreate(12,entity():toWorld(vec(0,9.91,0)),vec(0.57,0.16,0.08),entity():toWorld(ang(0,0,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    holoCreate(13,entity():toWorld(vec(0,9.95,0)),vec(0.57,0.16,0.07),entity():toWorld(ang(0,0,90)),vec4(0,0,0,255),"models/sprops/rectangles_thin/size_1/rect_3x6x1_5.mdl")
+    for(I=1,13){holoParent(I,entity()) holoMaterial(I,"models/debug/debugwhite")}
+    entity():setAlpha(0)
+    timer("Country",200)
+}
+#Plate Design
+if(clk("Country")){
+    if(Country!=0 & Country!=25 & Country!=30){
+        holoCreate(14,entity():toWorld(vec(0,-9,0)),vec(0.62,1.2,0.6),entity():toWorld(ang(0,0,0)),vec(255,255,255),"models/sprops/rectangles_superthin/size_0/rect_1_5x6.mdl")
+        holoParent(14,entity()) holoMaterial(14,"models/debug/debugwhite")
+        if(Country!=21 & Country!=31){
+            for(I=15,26){
+                holoCreate(I,entity():toWorld(vec(0,-0.6,0):rotate(ang(0,I*30,0))+vec(-0.7,-9,0.15)),vec(0.02,0.08,0.02),entity():toWorld(ang(0,-90,90)),vec(250,200,0),"models/sprops/misc/alphanum/alphanum_star_3.mdl")
+                holoParent(I,entity()) holoMaterial(I,"models/debug/debugwhite")
+            }
+        }
+    }
+    switch(Country){
+        #Austria
+        case 1,
+        holoColor(14,BLUE1)
+        holoCreate(27,entity():toWorld(vec(0.8,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_a.mdl")
+        holoCreate(28,entity():toWorld(vec(-1.7,0,0.05)),vec(0.005,1.64,0.033),entity():toWorld(ang(0,0,0)),RED0,"")
+        holoCreate(29,entity():toWorld(vec(-1.5,0,0.05)),vec(0.005,1.64,0.033),entity():toWorld(ang(0,0,0)),RED0,"")
+        holoCreate(30,entity():toWorld(vec(1.7,0,0.05)),vec(0.005,1.64,0.033),entity():toWorld(ang(0,0,0)),RED0,"")
+        holoCreate(31,entity():toWorld(vec(1.5,0,0.05)),vec(0.005,1.64,0.033),entity():toWorld(ang(0,0,0)),RED0,"")
+        holoSetting(27,31)
+        break
+        #Belguim
+        case 2,
+        for(I=2,13){holoColor(I,vec(210,25,0))}
+        holoColor(14,BLUE2)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_b.mdl")
+        holoSetting(27,27)
+        break
+        #Bulgaria
+        case 3,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_b.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_g.mdl")
+        holoSetting(27,28)
+        break
+        #Croatia
+        case 4,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_h.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_r.mdl")
+        holoCreate(29,entity():toWorld(vec(-1.82,0.9,0)),vec(0.005,1.495,0.025),entity():toWorld(ang(0,0,0)),BLUE4,"")
+        holoCreate(30,entity():toWorld(vec(-1.62,0.9,0)),vec(0.005,1.495,0.025),entity():toWorld(ang(0,0,0)),RED0,"")
+        holoCreate(31,entity():toWorld(vec(1.82,0.9,0)),vec(0.005,1.495,0.025),entity():toWorld(ang(0,0,0)),BLUE4,"")
+        holoCreate(32,entity():toWorld(vec(1.62,0.9,0)),vec(0.005,1.495,0.025),entity():toWorld(ang(0,0,0)),RED0,"")
+        holoSetting(27,32)
+        break
+        #Cyprus
+        case 5,
+        holoColor(14,BLUE2)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_c.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_y.mdl")
+        holoSetting(27,28)
+        break
+        #CZECH Republic
+        case 6,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_c.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_z.mdl")
+        holoSetting(27,28)
+        break
+        #Denmark
+        case 7,
+        holoColor(1,vec(250,200,0))
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_d.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_k.mdl")
+        holoSetting(27,28)
+        break
+        #Estonia
+        case 8,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_e.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-9,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_s.mdl")
+        holoCreate(29,entity():toWorld(vec(1.1,-8.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_t.mdl")
+        holoSetting(27,29)
+        break
+        #Finland
+        case 9,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_f.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-9,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_i.mdl")
+        holoCreate(29,entity():toWorld(vec(1.1,-8.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_n.mdl")
+        holoSetting(27,29)
+        break
+        #France
+        case 10,
+        holoColor(14,BLUE0)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_f.mdl")
+        holoSetting(27,27)
+        break
+        #Germany
+        case 11,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_d.mdl")
+        holoSetting(27,27)
+        break
+        #Greece
+        case 12,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_g.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_r.mdl")
+        holoSetting(27,28)
+        break
+        #Hungary
+        case 13,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_h.mdl")
+        holoSetting(27,27)
+        break
+        #Ireland
+        case 14,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_i.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-9,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_r.mdl")
+        holoCreate(29,entity():toWorld(vec(1.1,-8.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_l.mdl")
+        holoSetting(27,29)
+        break
+        #Italy
+        case 15,
+        holoColor(14,BLUE2)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_i.mdl")
+        holoSetting(27,27)
+        holoCreate(28,entity():toWorld(vec(0,9,0)),vec(0.62,1.2,0.6),entity():toWorld(ang(0,0,0)),vec(255,255,255),"models/sprops/rectangles_superthin/size_0/rect_1_5x6.mdl")
+        holoColor(28,BLUE2)
+        holoCreate(29,entity():toWorld(vec(-0.7,9,0.15)),vec(0.12,0.04,0.12),entity():toWorld(ang(0,0,90)),vec(250,200,0),"models/sprops/misc/tubes_thin/size_1/t_tube_12x6.mdl")
+        for(I=28,29){holoParent(I,entity()) holoMaterial(I,"models/debug/debugwhite")}
+        break
+        #Latvia
+        case 16,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_l.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_v.mdl")
+        holoSetting(27,28)
+        break
+        #Lithuania
+        case 17,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_l.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_t.mdl")
+        holoSetting(27,28)
+        break
+        #Luxembourg
+        case 18,
+        holoColor(1,vec(250,200,0))
+        holoColor(14,BLUE2)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_l.mdl")
+        holoSetting(27,27)
+        break
+        #Malta
+        case 19,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_m.mdl")
+        holoSetting(27,27)
+        break
+        #Netherlands
+        case 20,
+        holoColor(1,vec(250,200,0))
+        holoColor(14,BLUE2)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_n.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_l.mdl")
+        holoSetting(27,28)
+        break
+        #Norway
+        case 21,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_n.mdl")
+        holoSetting(27,27)
+        break
+        #Poland
+        case 22,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_p.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_l.mdl")
+        holoSetting(27,28)
+        break
+        #Portugal
+        case 23,
+        holoColor(14,BLUE1)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_p.mdl")
+        holoSetting(27,27)
+        break
+        #Romania
+        case 24,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_r.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_o.mdl")
+        holoSetting(27,28)
+        break
+        #Russian Federation
+        case 25,
+        holoCreate(27,entity():toWorld(vec(0,3.5,0.05)),vec(0.31,0.01,0.03),entity():toWorld(ang(0,0,0)),vec4(0,0,0,255),"")
+        holoCreate(28,entity():toWorld(vec(1.05,8.5,0)),vec(0.1,0.16,0.02),entity():toWorld(ang(0,0,0)),vec4(0,0,0,255),"")
+        holoCreate(29,entity():toWorld(vec(0.7,8.5,0.05)),vec(0.03,0.15,0.03),entity():toWorld(ang(0,0,0)),vec4(255,255,255,255),"")
+        holoCreate(30,entity():toWorld(vec(1.05,8.5,0.05)),vec(0.03,0.15,0.03),entity():toWorld(ang(0,0,0)),vec4(63,75,159,255),"")
+        holoCreate(31,entity():toWorld(vec(1.4,8.5,0.05)),vec(0.03,0.15,0.03),entity():toWorld(ang(0,0,0)),vec4(214,36,36,255),"")
+        holoCreate(32,entity():toWorld(vec(1,5.1,0.05)),vec(0.08,0.08,0.08),entity():toWorld(ang(0,-90,90)),vec4(0,0,0,255),"models/sprops/misc/alphanum/alphanum_r.mdl")
+        holoCreate(33,entity():toWorld(vec(1,6,0.05)),vec(0.08,0.08,0.08),entity():toWorld(ang(0,-90,90)),vec4(0,0,0,255),"models/sprops/misc/alphanum/alphanum_u.mdl")
+        holoCreate(34,entity():toWorld(vec(1,6.9,0.05)),vec(0.08,0.08,0.08),entity():toWorld(ang(0,-90,90)),vec4(0,0,0,255),"models/sprops/misc/alphanum/alphanum_s.mdl")
+        holoSetting(27,34)
+        break
+        #Slovakia
+        case 26,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_s.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_k.mdl")
+        holoSetting(27,28)
+        break
+        #Slovenia
+        case 27,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_s.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-9,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_l.mdl")
+        holoCreate(29,entity():toWorld(vec(1.1,-8.5,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_o.mdl")
+        holoSetting(27,29)
+        break
+        #Spain
+        case 28,
+        holoColor(14,BLUE2)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_e.mdl")
+        holoSetting(27,27)
+        break
+        #Sweden
+        case 29,
+        holoColor(14,BLUE4)
+        holoCreate(27,entity():toWorld(vec(1.1,-9,0.15)),vec(0.07,0.07,0.07),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_s.mdl")
+        holoSetting(27,27)
+        break
+        #Switzerland
+        case 30,
+        holoCreate(27,entity():toWorld(vec(-0.15,-8.5,-0.1)),vec(0.15,0.18,0.1),entity():toWorld(ang(0,90,0)),vec4(255,70,7,255),"models/sprops/rectangles_thin/size_1_5/rect_6x12x1_5.mdl")
+        holoCreate(28,entity():toWorld(vec(0.75,-8.5,-0.1)),vec(0.15,0.1,0.13),entity():toWorld(ang(0,90,90)),vec4(255,70,7,255),"models/sprops/geometry/t_hhex_12.mdl")
+        holoCreate(29,entity():toWorld(vec(1.25,-8.5,-0.1)),vec(0.15,0.1,0.062),entity():toWorld(ang(0,90,90)),vec4(255,70,7,255),"models/sprops/triangles_thin/regular/t_etri_6x6.mdl")
+        holoCreate(30,entity():toWorld(vec(0.3,-8.5,0)),vec(0.13,0.01,0.04),entity():toWorld(ang(0,0,90)),vec4(255,255,255,255),"")
+        holoCreate(31,entity():toWorld(vec(0.3,-8.5,0)),vec(0.04,0.01,0.13),entity():toWorld(ang(0,0,90)),vec4(255,255,255,255),"")
+        holoSetting(27,31)
+        break
+        #Turkey
+        case 31,
+        holoColor(14,BLUE3)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_t.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_r.mdl")
+        holoSetting(27,28)
+        break
+        #United Kingdom
+        case 32,
+        holoColor(14,BLUE2)
+        holoCreate(27,entity():toWorld(vec(1.1,-9.3,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_g.mdl")
+        holoCreate(28,entity():toWorld(vec(1.1,-8.7,0.15)),vec(0.05,0.07,0.05),entity():toWorld(ang(0,-90,90)),vec4(255,255,255,255),"models/sprops/misc/alphanum/alphanum_b.mdl")
+        holoSetting(27,28)
+        break
+    }
+    timer("Text",200)
+}
+#Text
+if(clk("Text")){
+    Text = TEXT:upper():sub(1,10)
+    Gap = Country == 25 ? 1.3 : 1.5
+    Scale = Country == 25 ? 0.1 : 0.13
+    for(I=1,Text:length()){
+        Pos = Text:length()*-Gap/2+I*Gap
+        if(Country == 0 | Country == 15){Pos-=0.75}
+        elseif(Country == 25){Pos-=3.85}
+        Model = "models/sprops/misc/alphanum/alphanum_"+Text:index(I):lower()+".mdl"
+        if(Text:index(I) == " "){continue}
+        holoCreate(40+I,entity():toWorld(vec(Country==25 ? 0.7 : 0,Pos,0)),vec(Scale,0.1,Scale),entity():toWorld(ang(0,-90,90)),vec4(0,0,0,255),Model)
+        holoMaterial(40+I,"models/debug/debugwhite") holoParent(40+I,1)
+    }
+}
