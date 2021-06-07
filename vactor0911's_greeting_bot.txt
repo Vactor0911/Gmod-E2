@@ -4,6 +4,8 @@
 @persist 
 @trigger 
 
+#NOTE : write `wire_expression2_concmd 1` in colsole before using this E2.
+
 if(dupefinished()){reset()}
 
 interval(100)
