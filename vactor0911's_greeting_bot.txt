@@ -2,7 +2,7 @@
 @inputs 
 @outputs Players
 @persist 
-@trigger 
+@trigger none
 
 #NOTE : write `wire_expression2_concmd 1` in colsole before using this E2.
 
