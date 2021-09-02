@@ -1,0 +1,52 @@
+@name Vactor0911's FLIR Chip
+@inputs Cam:wirelink Chair:entity Active
+@outputs [Ary,Ply]:array
+@persist 
+@trigger none
+
+if(dupefinished()){ reset() }
+
+interval(50)
+
+if(changed(numPlayers())){
+    findClearBlackList()
+    findByClass("player")
+    Ply = findToArray()
+}
+
+#Cam Position
+if(first()){
+    Cam["Position",vector] = Chair:toWorld(vec(0,0,100))
+    Cam["Parent",entity] = Chair
+    
+    #Acf Holograms
+    findClearBlackList()
+    findByClass("acf_*")
+    Ary = findToArray()
+    holoDeleteAll()
+    print(Ary:count())
+    for(I=1,Ary:count()){
+        holoCreate(I, Ary[I,entity]:pos(), vec(1.1), Ary[I,entity]:angles(), vec4(255), Ary[I,entity]:model())
+        holoParent(I, Ary[I,entity])
+        holoMaterial(I,"models/debug/debugwhite")
+        holoDisableShading(I,1)
+        holoVisible(I,Ply,0)
+        holoAlpha(I,0)
+    }
+}
+
+if(changed(findByClass("acf_*"))){ reset() }
+
+#holoVisible
+if( changed(Chair:driver()) ){
+    for(I=1,Ary:count()){
+        if(Chair:driver() != noentity()){ holoVisible(I,Chair:driver(),1) }
+        else{ holoVisible(I,Ply,0) }
+    }
+}
+
+#FLIR Active
+if(changed(Active) | changed(Chair:driver()) | changed(Ary:count())){
+    Cam["FLIR",number] = Active
+    for(I=1,Ary:count()){ holoAlpha(I,Active*255) }
+}
