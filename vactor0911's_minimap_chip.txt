@@ -1,0 +1,84 @@
+@name Vactor0911's Minimap Chip
+@inputs Egp:wirelink
+@outputs [Ary_Ply,Ary_Npc]:array
+@persist Id
+@trigger 
+
+if(dupefinished()){ reset() }
+
+###Settings###
+OFFSET = vec2(10,10) #Position of minimap. (Default = [0,0])
+SIZE = 100         #Size of minimap. (MUST BE LARGER THAN 0 / Default = 100)
+DISTANCE = 100     #Max distance that minimap can draw. (Meter, MUST BE LARGER THAN 0 / Default = 300)
+DIVIDE = 3         #Number of separation lines. (MUST BE LARGER THAN 0 / Default = 3)
+PLAYER = 1         #Draw Players? (True = 1 / False = 0 / Default = 1)
+NPC = 1            #Draw NPCs? (True = 1 / False = 0 / Default = 0) #TODO#
+##############
+
+interval(50)
+
+if(first() | duped()){
+    function vector2 egpOffset(Number){ return vec2(Number) + OFFSET }
+    function vector2 egpOffset(Number1, Number2){ return vec2(Number1, Number2) + OFFSET }
+    function vector2 egpOffset(Vector2:vector2){ return Vector2 + OFFSET }
+}
+
+if(first()){
+    Egp:egpClear()
+    #Base
+    Egp:egpCircle(1,egpOffset(SIZE),vec2(SIZE)) Egp:egpColor(1,vec()) Egp:egpAlpha(1,150)
+    
+    #Seperation Lines & Text
+    for(I=1,DIVIDE){
+        local Size = round(SIZE/DIVIDE*I)
+        local Dist = round(DISTANCE/DIVIDE*I)
+        Egp:egpCircleOutline(1+(I*2-1),egpOffset(SIZE),vec2(Size))
+        Egp:egpText(1+(I*2),Dist+"m",egpOffset(SIZE,Size + SIZE)) Egp:egpAlign(1+(I*2),1) Egp:egpSize(1+(I*2),SIZE/10)
+    }
+    Id = 1 + DIVIDE*2+1
+    
+    #Owner Triangle
+    local SizeMul = SIZE/20
+    Egp:egpTriangle(Id,egpOffset(SIZE,SIZE-SizeMul),egpOffset(SIZE-SizeMul/1.5,SIZE+SizeMul),egpOffset(SIZE+SizeMul/1.5,SIZE+SizeMul))
+}
+
+#Find Players
+if( PLAYER & changed(numPlayers())){
+    local OldPlyCnt = Ary_Ply:count()
+    
+    findExcludePlayer(owner())
+    findByClass("player")
+    Ary_Ply = findToArray()
+    
+    #Draw Player Entities
+    if(OldPlyCnt > Ary_Ply:count()){
+        for(I=Ary_Ply:count()+1,OldPlyCnt){ Egp:egpRemove(Id+I) }
+    }
+    for(I=1,Ary_Ply:count()){
+        Egp:egpCircle(Id+I,egpOffset(SIZE),vec2(SIZE/20))
+        Egp:egpColor(Id+I,vec(255,191,0))
+        Egp:egpParent(Id+I,1)
+    }
+}
+
+#Find NPCs
+#[ TODO
+if( NPC & findCanQuery() ){
+    findByClass("npc_*")
+    findSortByDistance(owner():pos())
+    Ary_Npc = findToArray()
+}
+]#
+
+#Positioning Player Entities
+for(I=1,Ary_Ply:count()){
+    if( vec2(Ary_Ply[I,entity]:pos()):distance(vec2(owner():pos())) <= fromUnit("m",DISTANCE) ){
+        Egp:egpAlpha(Id+I,1)
+        local Pos = vec2(Ary_Ply[I,entity]:pos() - owner():pos()) / vec2(52.49343832021)#unit to meter
+        Egp:egpPos(Id+I,egpOffset(Pos) )
+    }
+    else{ Egp:egpAlpha(Id+I,0) }
+}
+
+#Base Rotation
+Egp:egpAngle(1,-owner():eyeAngles():yaw()-90)
