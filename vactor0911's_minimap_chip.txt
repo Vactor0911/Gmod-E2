@@ -8,12 +8,12 @@ if(dupefinished()){ reset() }
 
 ###Settings###
 OFFSET = vec2(10,10) #Position of minimap. (Default = [0,0])
-SIZE = 100         #Size of minimap. (MUST BE LARGER THAN 0 / Default = 100)
-DISTANCE = 100     #Max distance that minimap can draw. (Meter, MUST BE LARGER THAN 0 / Default = 300)
-DIVIDE = 3         #Number of separation lines. (MUST BE LARGER THAN 0 / Default = 3)
-PLAYER = 1         #Draw Players? (True = 1 / False = 0 / Default = 1)
-SHOWNAME = 0       #Show Player Names? (True = 1 / False = 0 / Default = 0)
-NPC = 0            #Draw NPCs? (True = 1 / False = 0 / Default = 0) #Work on process#
+SIZE = 100           #Size of minimap. (MUST BE LARGER THAN 0 / Default = 100)
+DISTANCE = 100       #Max distance that minimap can draw. (Meter, MUST BE LARGER THAN 0 / Default = 300)
+DIVIDE = 3           #Number of separation lines. (MUST BE LARGER THAN 0 / Default = 3)
+PLAYER = 1           #Draw Players? (True = 1 / False = 0 / Default = 1)
+SHOWNAME = 0         #Show Player Names? (True = 1 / False = 0 / Default = 0)
+NPC = 0              #Draw NPCs? (True = 1 / False = 0 / Default = 0) #Work on process#
 ##############
 
 interval(50)
