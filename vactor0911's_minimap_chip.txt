@@ -25,8 +25,8 @@ if(first() | duped()){
 }
 
 if(first()){
-    if( DISTANCE < 0 ){ error("DISTANCE MUST BE LARGER THAN 0.") }
-    if( DIVIDE < 0 ){ error("DIVIDE MUST BE LARGER THAN 0.") }
+    if( DISTANCE <= 0 ){ error("DISTANCE MUST BE LARGER THAN 0.") }
+    if( DIVIDE <= 0 ){ error("DIVIDE MUST BE LARGER THAN 0.") }
     
     Egp:egpClear()
     #Base
