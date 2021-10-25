@@ -12,7 +12,8 @@ SIZE = 100         #Size of minimap. (MUST BE LARGER THAN 0 / Default = 100)
 DISTANCE = 100     #Max distance that minimap can draw. (Meter, MUST BE LARGER THAN 0 / Default = 300)
 DIVIDE = 3         #Number of separation lines. (MUST BE LARGER THAN 0 / Default = 3)
 PLAYER = 1         #Draw Players? (True = 1 / False = 0 / Default = 1)
-NPC = 1            #Draw NPCs? (True = 1 / False = 0 / Default = 0) #TODO#
+SHOWNAME = 0       #Show Player Names? (True = 1 / False = 0 / Default = 0)
+NPC = 0            #Draw NPCs? (True = 1 / False = 0 / Default = 0) #Work on process#
 ##############
 
 interval(50)
@@ -24,6 +25,9 @@ if(first() | duped()){
 }
 
 if(first()){
+    if( DISTANCE < 0 ){ error("DISTANCE MUST BE LARGER THAN 0.") }
+    if( DIVIDE < 0 ){ error("DIVIDE MUST BE LARGER THAN 0.") }
+    
     Egp:egpClear()
     #Base
     Egp:egpCircle(1,egpOffset(SIZE),vec2(SIZE)) Egp:egpColor(1,vec()) Egp:egpAlpha(1,150)
@@ -55,9 +59,18 @@ if( PLAYER & changed(numPlayers())){
         for(I=Ary_Ply:count()+1,OldPlyCnt){ Egp:egpRemove(Id+I) }
     }
     for(I=1,Ary_Ply:count()){
-        Egp:egpCircle(Id+I,egpOffset(SIZE),vec2(SIZE/20))
+        #Circle
+        Egp:egpCircle(Id+I,vec2(),vec2(SIZE/20))
         Egp:egpColor(Id+I,vec(255,191,0))
         Egp:egpParent(Id+I,1)
+        #Text
+        if( SHOWNAME ){
+            Egp:egpText(Id+Ary_Ply:count()+I,Ary_Ply[I,entity]:name(),vec2(0,SIZE/20))
+            Egp:egpAlign(Id+Ary_Ply:count()+I,1)
+            Egp:egpSize(Id+Ary_Ply:count()+I,SIZE/10)
+            Egp:egpColor(Id+Ary_Ply:count()+I,vec(255,191,0))
+            Egp:egpParent(Id+Ary_Ply:count()+I,Id+I)
+        }
     }
 }
 
@@ -73,12 +86,20 @@ if( NPC & findCanQuery() ){
 #Positioning Player Entities
 for(I=1,Ary_Ply:count()){
     if( vec2(Ary_Ply[I,entity]:pos()):distance(vec2(owner():pos())) <= fromUnit("m",DISTANCE) ){
-        Egp:egpAlpha(Id+I,1)
-        local Pos = vec2(Ary_Ply[I,entity]:pos() - owner():pos()) / vec2(52.49343832021)#unit to meter
-        Egp:egpPos(Id+I,egpOffset(Pos) )
+        Egp:egpAlpha(Id+I,255)
+        if( SHOWNAME ){ Egp:egpAlpha(Id+Ary_Ply:count()+I,255) }
+        local Pos = vec2(Ary_Ply[I,entity]:pos() - owner():pos()) * toUnit("m",1) * vec2(SIZE/DISTANCE) * vec2(1,-1)#unit to meter
+        Egp:egpPos(Id+I,Pos)
     }
-    else{ Egp:egpAlpha(Id+I,0) }
+    else{
+        Egp:egpAlpha(Id+I,0)
+        if( SHOWNAME ){ Egp:egpAlpha(Id+Ary_Ply:count()+I,0) }
+    }
 }
 
 #Base Rotation
-Egp:egpAngle(1,-owner():eyeAngles():yaw()-90)
+local Ang = -owner():eyeAngles():yaw()+90
+Egp:egpAngle(1,Ang)
+if( SHOWNAME ){
+    for(I=1,Ary_Ply:count()){ Egp:egpAngle(Id+I,Ang) }
+}
