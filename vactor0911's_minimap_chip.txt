@@ -1,22 +1,20 @@
 @name Vactor0911's Minimap Chip
 @inputs Egp:wirelink
 @outputs [Ary_Ply,Ary_Npc]:array
-@persist Id
+@persist Id NpcCnt
 @trigger 
 
-if(dupefinished()){ reset() }
+if( dupefinished() | (changed(Egp:entity()) & !first()) ){ reset() }
 
 ###Settings###
 OFFSET = vec2(10,10) #Position of minimap. (Default = [0,0])
 SIZE = 100           #Size of minimap. (MUST BE LARGER THAN 0 / Default = 100)
 DISTANCE = 100       #Max distance that minimap can draw. (Meter, MUST BE LARGER THAN 0 / Default = 300)
 DIVIDE = 3           #Number of separation lines. (MUST BE LARGER THAN 0 / Default = 3)
-PLAYER = 1           #Draw Players? (True = 1 / False = 0 / Default = 1)
-SHOWNAME = 0         #Show Player Names? (True = 1 / False = 0 / Default = 0)
-NPC = 0              #Draw NPCs? (True = 1 / False = 0 / Default = 0) #Work on process#
+SHOWNAME = 1         #Show Player Names? (True = 1 / False = 0 / Default = 0)
 ##############
 
-interval(50)
+interval(100)
 
 if(first() | duped()){
     function vector2 egpOffset(Number){ return vec2(Number) + OFFSET }
@@ -25,9 +23,11 @@ if(first() | duped()){
 }
 
 if(first()){
+    #Exceptions
     if( SIZE <= 0 ){ error("SIZE MUST BE LARGER THAN 0.") }
     if( DISTANCE <= 0 ){ error("DISTANCE MUST BE LARGER THAN 0.") }
     if( DIVIDE <= 0 ){ error("DIVIDE MUST BE LARGER THAN 0.") }
+    if( SHOWNAME < 0 | SHOWNAME > 1 ){ error("SHOWNAME MUST BE 0 OR 1.") }
     
     Egp:egpClear()
     #Base
@@ -48,7 +48,7 @@ if(first()){
 }
 
 #Find Players
-if( PLAYER & changed(numPlayers())){
+if( changed(numPlayers())){
     local OldPlyCnt = Ary_Ply:count()
     
     findExcludePlayer(owner())
@@ -59,7 +59,7 @@ if( PLAYER & changed(numPlayers())){
     if(OldPlyCnt > Ary_Ply:count()){
         for(I=Ary_Ply:count()+1,OldPlyCnt){ Egp:egpRemove(Id+I) }
     }
-    for(I=1,Ary_Ply:count()){
+    for( I=1,Ary_Ply:count() ){
         #Circle
         Egp:egpCircle(Id+I,vec2(),vec2(SIZE/20))
         Egp:egpColor(Id+I,vec(255,191,0))
@@ -75,21 +75,12 @@ if( PLAYER & changed(numPlayers())){
     }
 }
 
-#Find NPCs
-#[ TODO
-if( NPC & findCanQuery() ){
-    findByClass("npc_*")
-    findSortByDistance(owner():pos())
-    Ary_Npc = findToArray()
-}
-]#
-
 #Positioning Player Entities
 for(I=1,Ary_Ply:count()){
     if( vec2(Ary_Ply[I,entity]:pos()):distance(vec2(owner():pos())) <= fromUnit("m",DISTANCE) ){
         Egp:egpAlpha(Id+I,255)
         if( SHOWNAME ){ Egp:egpAlpha(Id+Ary_Ply:count()+I,255) }
-        local Pos = vec2(Ary_Ply[I,entity]:pos() - owner():pos()) * toUnit("m",1) * vec2(SIZE/DISTANCE) * vec2(1,-1)#unit to meter
+        local Pos = vec2(Ary_Ply[I,entity]:pos() - owner():pos()) * toUnit("m",1) * vec2(SIZE/DISTANCE) * vec2(1,-1)
         Egp:egpPos(Id+I,Pos)
     }
     else{
